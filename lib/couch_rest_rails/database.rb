@@ -51,7 +51,8 @@ module CouchRestRails
         if !COUCHDB_SERVER.databases.include?(full_db_name)
           response << "Database #{db} (#{full_db_name}) does not exist"
         else
-          CouchRest.delete "#{COUCHDB_CONFIG[:host_path]}/#{full_db_name}"
+          # COUCHDB_SERVER knows how to clean the ExtendedDocument class state
+          COUCHDB_SERVER.database(full_db_name).delete!
           response << "Deleted database #{db} (#{full_db_name})"
         end
         
