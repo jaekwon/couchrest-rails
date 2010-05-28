@@ -14,13 +14,13 @@ namespace :couchdb do
 
   namespace :fixtures do
     desc "Load fixtures into a current environment's CouchDB database (use no database argument to use all databases defined in CouchRestRails::Document models)"
-    task :load, :database, :needs  => :environment do |t, args|
-      args.with_defaults(:database => "*")
-      puts CouchRestRails::Fixtures.load(args.database)
+    task :load, :database, :fixtures_path, :needs  => :environment do |t, args|
+      args.with_defaults(:database => "*", :fixtures_path => nil)
+      puts CouchRestRails::Fixtures.load(args.database, :fixtures_path => args.fixtures_path)
     end
-    task :dump, :database, :needs => :environment do |t, args|
-      args.with_defaults(:database => "*")
-      puts CouchRestRails::Fixtures.dump(args.database)
+    task :dump, :database, :fixtures_path, :needs => :environment do |t, args|
+      args.with_defaults(:database => "*", :fixtures_path => nil)
+      puts CouchRestRails::Fixtures.dump(args.database, :fixtures_path => args.fixtures_path)
     end
   end
 

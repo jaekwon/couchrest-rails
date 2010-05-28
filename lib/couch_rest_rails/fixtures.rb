@@ -14,11 +14,12 @@ module CouchRestRails
     end
     
     def load(database_name = '*', opts = {})
-      
+      fixtures_path = opts[:fixtures_path] || CouchRestRails.fixtures_path
+
       CouchRestRails.process_database_method(database_name) do |db, response|
        
-        unless File.exist?(File.join(RAILS_ROOT, CouchRestRails.fixtures_path, "#{db}.yml"))
-          response << "Fixtures file (#{File.join(CouchRestRails.fixtures_path, "#{db}.yml")}) does not exist"
+        unless File.exist?(File.join(RAILS_ROOT, fixtures_path, "#{db}.yml"))
+          response << "Fixtures file (#{File.join(fixtures_path, "#{db}.yml")}) does not exist"
           next
         end
         
@@ -31,12 +32,12 @@ module CouchRestRails
         
         db_conn = CouchRest.database(full_db_path)
         fixture_files = []
-        Dir.glob(File.join(RAILS_ROOT, CouchRestRails.fixtures_path, "#{db}.yml")).each do |file|
+        Dir.glob(File.join(RAILS_ROOT, fixtures_path, "#{db}.yml")).each do |file|
           db_conn.bulk_save(YAML::load(ERB.new(IO.read(file)).result).map {|f| f[1]})
           fixture_files << File.basename(file)
         end
         if fixture_files.empty?
-          response << "No fixtures found in #{CouchRestRails.fixtures_path}"
+          response << "No fixtures found in #{fixtures_path}"
         else
           response << "Loaded the following fixture files into #{db} (#{full_db_name}): #{fixture_files.join(', ')}"
         end
@@ -46,6 +47,7 @@ module CouchRestRails
     end
 
     def dump(database_name = '*', opts = {})
+      fixtures_path = opts[:fixtures_path] || CouchRestRails.fixtures_path
       
       CouchRestRails.process_database_method(database_name) do |db, response|
         
@@ -56,9 +58,9 @@ module CouchRestRails
           next
         end
         
-        fixtures_file = File.join(RAILS_ROOT, CouchRestRails.fixtures_path, "#{db}.yml")
+        fixtures_file = File.join(RAILS_ROOT, fixtures_path, "#{db}.yml")
         if File.exist?(fixtures_file)
-          response << "Overwriting fixtures in #{File.join(CouchRestRails.fixtures_path, "#{db}.yml")}"
+          response << "Overwriting fixtures in #{File.join(fixtures_path, "#{db}.yml")}"
         end
         
         File.open(fixtures_file, 'w' ) do |file|
@@ -75,7 +77,7 @@ module CouchRestRails
           file.write yaml_hash.to_yaml
         end
         
-        response << "Dumped fixtures into #{File.join(CouchRestRails.fixtures_path, "#{db}.yml")}"
+        response << "Dumped fixtures into #{File.join(fixtures_path, "#{db}.yml")}"
         
       end
     end
